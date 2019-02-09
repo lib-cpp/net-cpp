@@ -14,10 +14,6 @@
 #
 # Authored by: Thomas Voss <thomas.voss@canonical.com>
 
-execute_process(
-    COMMAND ${CMAKE_COMMAND} -E tar xf ${CMAKE_CURRENT_SOURCE_DIR}/httpbin.tar.bz2
-    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
-
 configure_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/httpbin.h.in
     ${CMAKE_CURRENT_BINARY_DIR}/httpbin.h
