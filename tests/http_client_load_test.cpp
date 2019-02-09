@@ -132,10 +132,6 @@ TEST_F(HttpClientLoadTest, async_head_request_for_existing_resource_succeeds)
 
     auto response_verifier = [](const http::Response& response) -> bool
     {
-        // All endpoint data on httpbin.org is JSON encoded.
-        json::Value root;
-        json::Reader reader;
-
         // We expect the query to complete successfully
         EXPECT_EQ(core::net::http::Status::ok, response.status);
 
@@ -159,12 +155,13 @@ TEST_F(HttpClientLoadTest, async_get_request_for_existing_resource_succeeds)
     {
         // All endpoint data on httpbin.org is JSON encoded.
         json::Value root;
-        json::Reader reader;
+        json::CharReaderBuilder builder;
+        std::unique_ptr<json::CharReader> reader(builder.newCharReader());
 
         // We expect the query to complete successfully
         EXPECT_EQ(core::net::http::Status::ok, response.status);
         // Parsing the body of the response as JSON should succeed.
-        EXPECT_TRUE(reader.parse(response.body, root));
+        EXPECT_TRUE(reader->parse(response.body.c_str(), response.body.c_str() + response.body.size(), &root, NULL));
         // The url field of the payload should equal the original url we requested.
         EXPECT_EQ(url, root["url"].asString());
 
@@ -191,12 +188,13 @@ TEST_F(HttpClientLoadTest, async_post_request_for_existing_resource_succeeds)
     {
         // All endpoint data on httpbin.org is JSON encoded.
         json::Value root;
-        json::Reader reader;
+        json::CharReaderBuilder builder;
+        std::unique_ptr<json::CharReader> reader(builder.newCharReader());
 
         // We expect the query to complete successfully
         EXPECT_EQ(core::net::http::Status::ok, response.status);
         // Parsing the body of the response as JSON should succeed.
-        EXPECT_TRUE(reader.parse(response.body, root));
+        EXPECT_TRUE(reader->parse(response.body.c_str(), response.body.c_str() + response.body.size(), &root, NULL));
         // The url field of the payload should equal the original url we requested.
         EXPECT_EQ(payload, root["data"].asString());
 

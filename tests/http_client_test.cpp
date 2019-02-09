@@ -144,7 +144,8 @@ TEST(HttpClient, get_request_for_existing_resource_succeeds)
 
     // All endpoint data on httpbin.org is JSON encoded.
     json::Value root;
-    json::Reader reader;
+    json::CharReaderBuilder builder;
+    std::unique_ptr<json::CharReader> reader(builder.newCharReader());
 
     // We finally execute the query synchronously and story the response.
     auto response = request->execute(default_progress_reporter);
@@ -152,7 +153,7 @@ TEST(HttpClient, get_request_for_existing_resource_succeeds)
     // We expect the query to complete successfully
     EXPECT_EQ(core::net::http::Status::ok, response.status);
     // Parsing the body of the response as JSON should succeed.
-    EXPECT_TRUE(reader.parse(response.body, root));
+    EXPECT_TRUE(reader->parse(response.body.c_str(), response.body.c_str() + response.body.size(), &root, NULL));
     // The url field of the payload should equal the original url we requested.
     EXPECT_EQ(url, root["url"].asString());
 }
@@ -174,7 +175,8 @@ TEST(HttpClient, get_request_with_custom_headers_for_existing_resource_succeeds)
 
     // All endpoint data on httpbin.org is JSON encoded.
     json::Value root;
-    json::Reader reader;
+    json::CharReaderBuilder builder;
+    std::unique_ptr<json::CharReader> reader(builder.newCharReader());
 
     // We finally execute the query synchronously and story the response.
     auto response = request->execute(default_progress_reporter);
@@ -183,7 +185,7 @@ TEST(HttpClient, get_request_with_custom_headers_for_existing_resource_succeeds)
     EXPECT_EQ(core::net::http::Status::ok, response.status);
 
     // Parsing the body of the response as JSON should succeed.
-    EXPECT_TRUE(reader.parse(response.body, root));
+    EXPECT_TRUE(reader->parse(response.body.c_str(), response.body.c_str() + response.body.size(), &root, NULL));
 
     auto headers = root["headers"];
 
@@ -207,7 +209,8 @@ TEST(HttpClient, empty_header_values_are_handled_correctly)
 
     // All endpoint data on httpbin.org is JSON encoded.
     json::Value root;
-    json::Reader reader;
+    json::CharReaderBuilder builder;
+    std::unique_ptr<json::CharReader> reader(builder.newCharReader());
 
     // We finally execute the query synchronously and story the response.
     auto response = request->execute(default_progress_reporter);
@@ -216,7 +219,7 @@ TEST(HttpClient, empty_header_values_are_handled_correctly)
     EXPECT_EQ(core::net::http::Status::ok, response.status);
 
     // Parsing the body of the response as JSON should succeed.
-    EXPECT_TRUE(reader.parse(response.body, root));
+    EXPECT_TRUE(reader->parse(response.body.c_str(), response.body.c_str() + response.body.size(), &root, NULL));
 
     auto headers = root["headers"];
     EXPECT_EQ(std::string{}, headers["Empty"].asString());
@@ -240,7 +243,8 @@ TEST(HttpClient, get_request_for_existing_resource_guarded_by_basic_auth_succeed
 
     // All endpoint data on httpbin.org is JSON encoded.
     json::Value root;
-    json::Reader reader;
+    json::CharReaderBuilder builder;
+    std::unique_ptr<json::CharReader> reader(builder.newCharReader());
 
     // We finally execute the query synchronously and story the response.
     auto response = request->execute(default_progress_reporter);
@@ -248,7 +252,7 @@ TEST(HttpClient, get_request_for_existing_resource_guarded_by_basic_auth_succeed
     // We expect the query to complete successfully
     EXPECT_EQ(core::net::http::Status::ok, response.status);
     // Parsing the body of the response as JSON should succeed.
-    EXPECT_TRUE(reader.parse(response.body, root));
+    EXPECT_TRUE(reader->parse(response.body.c_str(), response.body.c_str() + response.body.size(), &root, NULL));
     // We expect authentication to work.
     EXPECT_TRUE(root["authenticated"].asBool());
     // With the correct user id
@@ -274,7 +278,8 @@ TEST(HttpClient, DISABLED_get_request_for_existing_resource_guarded_by_digest_au
 
     // All endpoint data on httpbin.org is JSON encoded.
     json::Value root;
-    json::Reader reader;
+    json::CharReaderBuilder builder;
+    std::unique_ptr<json::CharReader> reader(builder.newCharReader());
 
     // We finally execute the query synchronously and story the response.
     auto response = request->execute(default_progress_reporter);
@@ -282,7 +287,7 @@ TEST(HttpClient, DISABLED_get_request_for_existing_resource_guarded_by_digest_au
     // We expect the query to complete successfully
     EXPECT_EQ(core::net::http::Status::ok, response.status);
     // Parsing the body of the response as JSON should succeed.
-    EXPECT_TRUE(reader.parse(response.body, root));
+    EXPECT_TRUE(reader->parse(response.body.c_str(), response.body.c_str() + response.body.size(), &root, NULL));
     // We expect authentication to work.
     EXPECT_TRUE(root["authenticated"].asBool());
     // With the correct user id
@@ -323,12 +328,13 @@ TEST(HttpClient, async_get_request_for_existing_resource_succeeds)
 
     // All endpoint data on httpbin.org is JSON encoded.
     json::Value root;
-    json::Reader reader;
+    json::CharReaderBuilder builder;
+    std::unique_ptr<json::CharReader> reader(builder.newCharReader());
 
     // We expect the query to complete successfully
     EXPECT_EQ(core::net::http::Status::ok, response.status);
     // Parsing the body of the response as JSON should succeed.
-    EXPECT_TRUE(reader.parse(response.body, root));
+    EXPECT_TRUE(reader->parse(response.body.c_str(), response.body.c_str() + response.body.size(), &root, NULL));
     // The url field of the payload should equal the original url we requested.
     EXPECT_EQ(url, root["url"].asString());
 
@@ -362,7 +368,8 @@ TEST(HttpClient, async_get_request_for_existing_resource_guarded_by_basic_authen
 
     // All endpoint data on httpbin.org is JSON encoded.
     json::Value root;
-    json::Reader reader;
+    json::CharReaderBuilder builder;
+    std::unique_ptr<json::CharReader> reader(builder.newCharReader());
 
     std::promise<core::net::http::Response> promise;
     auto future = promise.get_future();
@@ -392,7 +399,7 @@ TEST(HttpClient, async_get_request_for_existing_resource_guarded_by_basic_authen
     // We expect the query to complete successfully
     EXPECT_EQ(core::net::http::Status::ok, response.status);
     // Parsing the body of the response as JSON should succeed.
-    EXPECT_TRUE(reader.parse(response.body, root));
+    EXPECT_TRUE(reader->parse(response.body.c_str(), response.body.c_str() + response.body.size(), &root, NULL));
     // We expect authentication to work.
     EXPECT_TRUE(root["authenticated"].asBool());
     // With the correct user id
@@ -416,7 +423,8 @@ TEST(HttpClient, post_request_for_existing_resource_succeeds)
 
     // All endpoint data on httpbin.org is JSON encoded.
     json::Value root;
-    json::Reader reader;
+    json::CharReaderBuilder builder;
+    std::unique_ptr<json::CharReader> reader(builder.newCharReader());
 
     // We finally execute the query synchronously and story the response.
     auto response = request->execute(default_progress_reporter);
@@ -424,7 +432,7 @@ TEST(HttpClient, post_request_for_existing_resource_succeeds)
     // We expect the query to complete successfully
     EXPECT_EQ(core::net::http::Status::ok, response.status);
     // Parsing the body of the response as JSON should succeed.
-    EXPECT_TRUE(reader.parse(response.body, root));
+    EXPECT_TRUE(reader->parse(response.body.c_str(), response.body.c_str() + response.body.size(), &root, NULL));
     // The url field of the payload should equal the original url we requested.
     EXPECT_EQ(payload, root["data"].asString());
 }
@@ -451,10 +459,11 @@ TEST(HttpClient, post_form_request_for_existing_resource_succeeds)
 
     // All endpoint data on httpbin.org is JSON encoded.
     json::Value root;
-    json::Reader reader;
+    json::CharReaderBuilder builder;
+    std::unique_ptr<json::CharReader> reader(builder.newCharReader());
 
     EXPECT_EQ(core::net::http::Status::ok, response.status);
-    EXPECT_TRUE(reader.parse(response.body, root));
+    EXPECT_TRUE(reader->parse(response.body.c_str(), response.body.c_str() + response.body.size(), &root, NULL));
     EXPECT_EQ("test", root["form"]["test"].asString());
 }
 
@@ -476,12 +485,13 @@ TEST(HttpClient, post_request_for_file_with_large_chunk_succeeds)
                                 size);
 
     json::Value root;
-    json::Reader reader;
+    json::CharReaderBuilder builder;
+    std::unique_ptr<json::CharReader> reader(builder.newCharReader());
 
     auto response = request->execute(default_progress_reporter);
 
     EXPECT_EQ(core::net::http::Status::ok, response.status);
-    EXPECT_TRUE(reader.parse(response.body, root));
+    EXPECT_TRUE(reader->parse(response.body.c_str(), response.body.c_str() + response.body.size(), &root, NULL));
     EXPECT_EQ(url, root["url"].asString());
 }
 
@@ -498,12 +508,13 @@ TEST(HttpClient, put_request_for_existing_resource_succeeds)
                                value.size());
 
     json::Value root;
-    json::Reader reader;
+    json::CharReaderBuilder builder;
+    std::unique_ptr<json::CharReader> reader(builder.newCharReader());
 
     auto response = request->execute(default_progress_reporter);
 
     EXPECT_EQ(core::net::http::Status::ok, response.status);
-    EXPECT_TRUE(reader.parse(response.body, root));
+    EXPECT_TRUE(reader->parse(response.body.c_str(), response.body.c_str() + response.body.size(), &root, NULL));
     EXPECT_EQ(payload.str(), root["data"].asString());
 }
 
@@ -525,12 +536,13 @@ TEST(HttpClient, put_request_for_file_with_large_chunk_succeeds)
                                size);
 
     json::Value root;
-    json::Reader reader;
+    json::CharReaderBuilder builder;
+    std::unique_ptr<json::CharReader> reader(builder.newCharReader());
 
     auto response = request->execute(default_progress_reporter);
 
     EXPECT_EQ(core::net::http::Status::ok, response.status);
-    EXPECT_TRUE(reader.parse(response.body, root));
+    EXPECT_TRUE(reader->parse(response.body.c_str(), response.body.c_str() + response.body.size(), &root, NULL));
     EXPECT_EQ(url, root["url"].asString());
 }
 
@@ -542,12 +554,13 @@ TEST(HttpClient, del_request_for_existing_resource_succeeds)
     auto request = client->del(http::Request::Configuration::from_uri_as_string(url));
 
     json::Value root;
-    json::Reader reader;
+    json::CharReaderBuilder builder;
+    std::unique_ptr<json::CharReader> reader(builder.newCharReader());
 
     auto response = request->execute(default_progress_reporter);
 
     EXPECT_EQ(core::net::http::Status::ok, response.status);
-    EXPECT_TRUE(reader.parse(response.body, root));
+    EXPECT_TRUE(reader->parse(response.body.c_str(), response.body.c_str() + response.body.size(), &root, NULL));
     EXPECT_EQ(url, root["url"].asString());
 }
 
@@ -615,7 +628,8 @@ const char* submit() { return "/v1/submit?key=net-cpp-testing"; }
 // for API and endpoint documentation.
 TEST(HttpClient, DISABLED_search_for_location_on_mozillas_location_service_succeeds)
 {
-    json::FastWriter writer;
+    json::StreamWriterBuilder wbuilder;
+    std::unique_ptr<json::StreamWriter> writer(wbuilder.newStreamWriter());
     json::Value search;
     json::Value cell;
     cell["radio"] = "umts";
@@ -642,16 +656,17 @@ TEST(HttpClient, DISABLED_search_for_location_on_mozillas_location_service_succe
             std::string(com::mozilla::services::location::host) +
             com::mozilla::services::location::resources::v1::search();
     auto request = client->post(http::Request::Configuration::from_uri_as_string(url),
-                                writer.write(search),
+                                Json::writeString(wbuilder, search),
                                 http::ContentType::json);
 
     auto response = request->execute(default_progress_reporter);
 
-    json::Reader reader;
+    json::CharReaderBuilder rbuilder;
+    std::unique_ptr<Json::CharReader> reader(rbuilder.newCharReader());
     json::Value result;
 
     EXPECT_EQ(core::net::http::Status::ok, response.status);
-    EXPECT_TRUE(reader.parse(response.body, result));
+    EXPECT_TRUE(reader->parse(response.body.c_str(), response.body.c_str() + response.body.size(), &result, NULL));
 
     // We cannot be sure that the server has got information for the given
     // cell and wifi ids. For that, we disable the test.
@@ -693,13 +708,14 @@ TEST(HttpClient, DISABLED_submit_of_location_on_mozillas_location_service_succee
 
     submit["items"].append(item);
 
-    json::FastWriter writer;
+    json::StreamWriterBuilder wbuilder;
+    std::unique_ptr<json::StreamWriter> writer(wbuilder.newStreamWriter());
     auto client = http::make_client();
     auto url =
             std::string(com::mozilla::services::location::host) +
             com::mozilla::services::location::resources::v1::submit();
     auto request = client->post(http::Request::Configuration::from_uri_as_string(url),
-                                writer.write(submit),
+                                Json::writeString(wbuilder, submit),
                                 http::ContentType::json);
     auto response = request->execute(default_progress_reporter);
 
