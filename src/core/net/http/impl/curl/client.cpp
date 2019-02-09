@@ -158,9 +158,12 @@ std::shared_ptr<http::impl::curl::Request> http::impl::curl::Client::post_impl(
         const std::string& ct)
 {
     ::curl::easy::Handle handle;
+    http::Header ctheader;
+    ctheader.set("Content-Type", ct);
     handle.method(http::Method::post)
             .url(configuration.uri.c_str())
             .header(configuration.header)
+            .header(ctheader)
             .post_data(payload.c_str(), ct);
 
     handle.set_option(::curl::Option::ssl_verify_host,
