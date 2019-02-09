@@ -42,7 +42,7 @@ struct Instance
     Instance()
         : server
           {
-              core::posix::exec("/usr/bin/python", {"@CMAKE_CURRENT_BINARY_DIR@/httpbin/run.py"}, {}, core::posix::StandardStream::stdout | core::posix::StandardStream::stderr)
+              core::posix::exec("/usr/bin/python3", {"-c", "from httpbin import app; app.run()"}, {}, core::posix::StandardStream::stdout /*| core::posix::StandardStream::stderr*/)
           }
     {
         std::this_thread::sleep_for(std::chrono::milliseconds{1000});
